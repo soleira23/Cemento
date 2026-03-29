@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Resistencia de Concreto</title>
+    <style>
+        /* Estilos similares a tu imagen */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #edf2f7;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            color: #718096;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #edf2f7;
+            color: #2d3748;
+            font-size: 15px;
+        }
+        tr:hover {
+            background-color: #f7fafc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <table id="tabla-materiales">
+        <thead>
+            <tr>
+                <th>Resistencia (Kg/cm²)</th>
+                <th>Cemento (Saco)</th>
+                <th>Arena (M³)</th>
+                <th>Piedra (M³)</th>
+                <th>Agua (Litro)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JavaScript insertará los datos aquí -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // 1. Datos extraídos de tu imagen
+    const datosConcreto = [
+        { resistencia: 119, cemento: 4.9, arena: 0.5, piedra: 1, agua: 155 },
+        { resistencia: 140, cemento: 5.4, arena: 0.55, piedra: 0.92, agua: 160 },
+        { resistencia: 159, cemento: 6.1, arena: 0.63, piedra: 0.83, agua: 185 },
+        { resistencia: 200, cemento: 7.1, arena: 0.48, piedra: 0.95, agua: 170 },
+        { resistencia: 240, cemento: 8.9, arena: 0.6, piedra: 0.76, agua: 190 },
+        { resistencia: 280, cemento: 9.9, arena: 0.67, piedra: 0.67, agua: 200 }
+    ];
+
+    // 2. Función para renderizar la tabla
+    const tablaBody = document.querySelector('#tabla-materiales tbody');
+
+    datosConcreto.forEach(fila => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${fila.resistencia}</td>
+            <td>${fila.cemento}</td>
+            <td>${fila.arena}</td>
+            <td>${fila.piedra}</td>
+            <td>${fila.agua}</td>
+        `;
+        tablaBody.appendChild(tr);
+    });
+</script>
+
+</body>
+</html>
