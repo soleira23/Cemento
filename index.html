@@ -5,40 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Mezcla de Concreto</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { width: 100%; max-width: 800px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 800px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 30px; }
         .search-box { margin-bottom: 20px; display: flex; gap: 10px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex-grow: 1; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #edf2f7; text-align: left; }
-        th { background: #f8f9fa; color: #718096; }
-        .resultado { background-color: #e7f3ff; font-weight: bold; }
+        input { padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; flex-grow: 1; font-size: 16px; outline: none; transition: border 0.3s; }
+        input:focus { border-color: #007bff; }
+        button { padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        
+        /* Resaltado Azul Brillante */
+        .resultado-brillante { 
+            background-color: #007bff !important; 
+            color: white !important; 
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0,123,255,0.5);
+        }
+        .resultado-brillante td { border-color: #0056b3; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; border: 1px solid #eee; text-align: center; }
+        th { background: #f8f9fa; color: #444; }
+
+        /* Sección de Volumen */
+        #seccion-volumen { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #eef9f1; 
+            border-radius: 10px; 
+            display: none; /* Oculto por defecto */
+            border: 2px dashed #28a745;
+        }
+        .btn-usar { background: #28a745; margin-top: 10px; }
+        .totales { font-size: 1.2em; color: #2d5a27; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Buscador de Resistencia</h2>
+    <h2>1. Buscador de Resistencia</h2>
     <div class="search-box">
-        <input type="number" id="inputResistencia" placeholder="Ingrese Resistencia (Kg/cm²)...">
-        <button onclick="buscarOInterpolar()">Calcular</button>
+        <input type="number" id="inputResistencia" placeholder="Resistencia deseada (Kg/cm²)...">
+        <button onclick="buscarOInterpolar()">Calcular Mezcla</button>
     </div>
 
     <table id="tabla-datos">
         <thead>
             <tr>
-                <th>Resistencia (Kg/cm²)</th>
-                <th>Cemento (Saco)</th>
+                <th>Resistencia</th>
+                <th>Sacos Cemento</th>
                 <th>Arena (M³)</th>
                 <th>Piedra (M³)</th>
-                <th>Agua (Litro)</th>
+                <th>Agua (L)</th>
+                <th>Acción</th>
             </tr>
         </thead>
-        <tbody id="cuerpo-tabla">
-            <!-- Los datos se cargan aquí -->
-        </tbody>
+        <tbody id="cuerpo-tabla"></tbody>
     </table>
+
+    <!-- Nueva Sección de Volumen -->
+    <div id="seccion-volumen">
+        <h3>2. Calcular Cantidades Totales</h3>
+        <p>Mezcla seleccionada para 1m³: <span id="mezcla-seleccionada" style="font-weight:bold"></span></p>
+        <div class="search-box">
+            <input type="number" id="inputVolumen" placeholder="¿Cuántos m³ necesitas fabricar?">
+            <button class="btn-usar" onclick="calcularTotales()">Calcular Materiales</button>
+        </div>
+        <div id="resultado-final" class="totales"></div>
+    </div>
 </div>
 
 <script>
@@ -51,28 +84,29 @@
         { r: 280, c: 9.9, a: 0.67, p: 0.67, w: 200 }
     ];
 
+    let seleccionActual = null;
+
     function renderTabla(filaResaltada = null) {
         const tbody = document.getElementById('cuerpo-tabla');
         tbody.innerHTML = '';
         
-        // Si hay una fila interpolada o buscada, la ponemos primero
         if (filaResaltada) {
             const tr = document.createElement('tr');
-            tr.className = 'resultado';
+            tr.className = 'resultado-brillante';
             tr.innerHTML = `
-                <td>${filaResaltada.r.toFixed(1)} (Resultado)</td>
+                <td>${filaResaltada.r.toFixed(1)}</td>
                 <td>${filaResaltada.c.toFixed(2)}</td>
                 <td>${filaResaltada.a.toFixed(2)}</td>
                 <td>${filaResaltada.p.toFixed(2)}</td>
                 <td>${filaResaltada.w.toFixed(1)}</td>
+                <td><button onclick='activarVolumen(${JSON.stringify(filaResaltada)})'>Usar esta</button></td>
             `;
             tbody.appendChild(tr);
         }
 
-        // Mostramos el resto de la tabla base
         datos.forEach(f => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${f.r}</td><td>${f.c}</td><td>${f.a}</td><td>${f.p}</td><td>${f.w}</td>`;
+            tr.innerHTML = `<td>${f.r}</td><td>${f.c}</td><td>${f.a}</td><td>${f.p}</td><td>${f.w}</td><td>-</td>`;
             tbody.appendChild(tr);
         });
     }
@@ -81,41 +115,54 @@
         const valor = parseFloat(document.getElementById('inputResistencia').value);
         if (isNaN(valor)) return;
 
-        // 1. Buscar coincidencia exacta
-        const exacta = datos.find(d => d.r === valor);
+        let exacta = datos.find(d => d.r === valor);
         if (exacta) {
             renderTabla(exacta);
-            return;
-        }
-
-        // 2. Interpolación
-        let inferior = null;
-        let superior = null;
-
-        for (let i = 0; i < datos.length; i++) {
-            if (datos[i].r < valor) inferior = datos[i];
-            if (datos[i].r > valor) {
-                superior = datos[i];
-                break;
-            }
-        }
-
-        if (inferior && superior) {
-            const factor = (valor - inferior.r) / (superior.r - inferior.r);
-            const interpolado = {
-                r: valor,
-                c: inferior.c + factor * (superior.c - inferior.c),
-                a: inferior.a + factor * (superior.a - inferior.a),
-                p: inferior.p + factor * (superior.p - inferior.p),
-                w: inferior.w + factor * (superior.w - inferior.w)
-            };
-            renderTabla(interpolado);
         } else {
-            alert("Valor fuera de rango (119 - 280)");
+            let inferior = null, superior = null;
+            for (let i = 0; i < datos.length; i++) {
+                if (datos[i].r < valor) inferior = datos[i];
+                if (datos[i].r > valor) { superior = datos[i]; break; }
+            }
+
+            if (inferior && superior) {
+                const f = (valor - inferior.r) / (superior.r - inferior.r);
+                const interp = {
+                    r: valor,
+                    c: inferior.c + f * (superior.c - inferior.c),
+                    a: inferior.a + f * (superior.a - inferior.a),
+                    p: inferior.p + f * (superior.p - inferior.p),
+                    w: inferior.w + f * (superior.w - inferior.w)
+                };
+                renderTabla(interp);
+            } else {
+                alert("Rango: 119 - 280 Kg/cm²");
+            }
         }
     }
 
-    // Carga inicial
+    function activarVolumen(mezcla) {
+        seleccionActual = mezcla;
+        document.getElementById('seccion-volumen').style.display = 'block';
+        document.getElementById('mezcla-seleccionada').innerText = `${mezcla.r.toFixed(1)} Kg/cm²`;
+        document.getElementById('inputVolumen').focus();
+    }
+
+    function calcularTotales() {
+        const vol = parseFloat(document.getElementById('inputVolumen').value);
+        if (isNaN(vol) || !seleccionActual) return;
+
+        const res = document.getElementById('resultado-final');
+        res.innerHTML = `
+            <hr>
+            <strong>Para ${vol} m³ necesitarás:</strong><br>
+            • ${(seleccionActual.c * vol).toFixed(2)} Sacos de Cemento<br>
+            • ${(seleccionActual.a * vol).toFixed(2)} m³ de Arena<br>
+            • ${(seleccionActual.p * vol).toFixed(2)} m³ de Piedra<br>
+            • ${(seleccionActual.w * vol).toFixed(1)} Litros de Agua
+        `;
+    }
+
     renderTabla();
 </script>
 
