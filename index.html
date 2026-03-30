@@ -5,143 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Concreto Pro</title>
     <style>
-        /* Variables de color */
-        :root {
-            --azul-brillante: #007bff;
-            --verde-exito: #28a745;
-            --fondo: #f4f7f9;
-        }
-
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--fondo); 
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container { 
-            width: 100%; 
-            max-width: 500px; /* Optimizado para ancho de móvil */
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        h2 { font-size: 1.4rem; color: #333; text-align: center; }
-
-        .search-box { 
-            display: flex; 
-            flex-direction: column; /* Apilado en móvil */
-            gap: 10px; 
-            margin-bottom: 20px;
-        }
-
-        input { 
-            padding: 15px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 16px; /* Evita zoom automático en iPhone */
-            outline: none;
-        }
-
-        input:focus { border-color: var(--azul-brillante); }
-
-        button { 
-            padding: 15px; 
-            background: var(--azul-brillante); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        /* Contenedor para que la tabla sea deslizable */
-        .table-wrapper {
-            overflow-x: auto;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
-
-        table { width: 100%; border-collapse: collapse; min-width: 450px; }
-        th, td { padding: 12px 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
-        th { background: #f8f9fa; color: #666; }
-
-        /* Estilo Azul Brillante para el resultado */
-        .resultado-brillante { 
-            background-color: var(--azul-brillante) !important; 
-            color: white !important; 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
+        :root { --azul: #007bff; --verde: #28a745; --rojo: #dc3545; --fondo: #f4f7f9; }
+        body { font-family: sans-serif; background: var(--fondo); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; box-sizing: border-box; }
+        h2, h3 { text-align: center; color: #333; margin-top: 0; }
         
-        .btn-usar-fila {
-            padding: 5px 10px;
-            font-size: 12px;
-            background: #fff;
-            color: var(--azul-brillante);
-            border-radius: 4px;
-        }
+        .search-box, .dimensiones-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .dimensiones-grid { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+        
+        input { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--azul); }
+        
+        button { padding: 12px; background: var(--azul); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-add { background: var(--verde); }
+        .btn-reset { background: var(--rojo); margin-top: 10px; width: 100%; }
 
-        /* Sección de Volumen */
-        #seccion-volumen { 
-            margin-top: 25px; 
-            padding: 15px; 
-            background: #ebfbee; 
-            border-radius: 10px; 
-            display: none;
-            border: 2px solid var(--verde-exito);
-        }
+        .table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 13px; }
+        .resultado-brillante { background-color: var(--azul) !important; color: white !important; }
 
-        .totales-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            border-left: 5px solid var(--verde-exito);
-        }
+        #seccion-calculo { display: none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px; }
+        
+        .lista-elementos { margin-top: 15px; font-size: 14px; }
+        .elemento-item { display: flex; justify-content: space-between; background: #fff; padding: 8px; border-bottom: 1px solid #eee; }
+        
+        .resumen-total { background: #333; color: white; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .resumen-total b { color: #58cc71; font-size: 1.2em; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Calculadora de Mezcla</h2>
-    
+    <h2>1. Resistencia (Kg/cm²)</h2>
     <div class="search-box">
-        <input type="number" id="inputResistencia" placeholder="Resistencia (Kg/cm²)...">
-        <button onclick="buscarOInterpolar()">CALCULAR</button>
+        <input type="number" id="inputResistencia" placeholder="Ej: 210">
+        <button onclick="buscarOInterpolar()">BUSCAR MEZCLA</button>
     </div>
 
     <div class="table-wrapper">
         <table>
             <thead>
-                <tr>
-                    <th>Resist.</th>
-                    <th>Cem.</th>
-                    <th>Aren.</th>
-                    <th>Pied.</th>
-                    <th>Agua</th>
-                    <th>-</th>
-                </tr>
+                <tr><th>Resist.</th><th>Cem.</th><th>Aren.</th><th>Pied.</th><th>Agua</th><th>-</th></tr>
             </thead>
             <tbody id="cuerpo-tabla"></tbody>
         </table>
     </div>
 
-    <div id="seccion-volumen">
-        <h3>Calcular m³ Totales</h3>
-        <p>Mezcla: <strong id="mezcla-seleccionada"></strong></p>
-        <div class="search-box">
-            <input type="number" id="inputVolumen" placeholder="¿Cuántos m³ fabricar?">
-            <button style="background: var(--verde-exito);" onclick="calcularTotales()">OBTENER MATERIALES</button>
+    <div id="seccion-calculo">
+        <h3>2. Dimensiones de Obra</h3>
+        <div class="dimensiones-grid">
+            <input type="text" id="nombreE" placeholder="Nombre (Pared, Viga...)">
+            <input type="number" id="largoE" placeholder="Largo (metros)">
+            <input type="number" id="anchoE" placeholder="Ancho (metros)">
+            <input type="number" id="espesorE" placeholder="Espesor/Alto (metros)">
+            <button class="btn-add" onclick="agregarElemento()">+ AÑADIR A LA LISTA</button>
         </div>
-        <div id="resultado-final"></div>
+
+        <div class="lista-elementos" id="lista-elementos"></div>
+
+        <div id="totales-finales" class="resumen-total">
+            Total Volumen: <span id="vol-total-text">0.00</span> m³<br><hr>
+            🏗️ Cemento: <b id="tot-c">0</b> sacos<br>
+            ⏳ Arena: <b id="tot-a">0</b> m³<br>
+            🪨 Piedra: <b id="tot-p">0</b> m³<br>
+            💧 Agua: <b id="tot-w">0</b> L
+        </div>
+        <button class="btn-reset" onclick="location.reload()">BORRAR TODO</button>
     </div>
 </div>
 
@@ -155,26 +85,18 @@
         { r: 280, c: 9.9, a: 0.67, p: 0.67, w: 200 }
     ];
 
-    let seleccion = null;
+    let mezclaSeleccionada = null;
+    let volumenTotal = 0;
 
     function renderTabla(brillante = null) {
         const tbody = document.getElementById('cuerpo-tabla');
         tbody.innerHTML = '';
-        
         if (brillante) {
             const tr = document.createElement('tr');
             tr.className = 'resultado-brillante';
-            tr.innerHTML = `
-                <td>${brillante.r.toFixed(0)}</td>
-                <td>${brillante.c.toFixed(1)}</td>
-                <td>${brillante.a.toFixed(2)}</td>
-                <td>${brillante.p.toFixed(2)}</td>
-                <td>${brillante.w.toFixed(0)}</td>
-                <td><button class="btn-usar-fila" onclick='activarVolumen(${JSON.stringify(brillante)})'>USAR</button></td>
-            `;
+            tr.innerHTML = `<td>${brillante.r.toFixed(0)}</td><td>${brillante.c.toFixed(1)}</td><td>${brillante.a.toFixed(2)}</td><td>${brillante.p.toFixed(2)}</td><td>${brillante.w.toFixed(0)}</td><td><button onclick='seleccionarMezcla(${JSON.stringify(brillante)})'>USAR</button></td>`;
             tbody.appendChild(tr);
         }
-
         datos.forEach(f => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td>${f.r}</td><td>${f.c}</td><td>${f.a}</td><td>${f.p}</td><td>${f.w}</td><td>-</td>`;
@@ -185,11 +107,9 @@
     function buscarOInterpolar() {
         const v = parseFloat(document.getElementById('inputResistencia').value);
         if (isNaN(v)) return;
-
         let exacta = datos.find(d => d.r === v);
-        if (exacta) {
-            renderTabla(exacta);
-        } else {
+        if (exacta) renderTabla(exacta);
+        else {
             let inf = null, sup = null;
             for (let i = 0; i < datos.length; i++) {
                 if (datos[i].r < v) inf = datos[i];
@@ -197,37 +117,46 @@
             }
             if (inf && sup) {
                 const f = (v - inf.r) / (sup.r - inf.r);
-                renderTabla({
-                    r: v,
-                    c: inf.c + f * (sup.c - inf.c),
-                    a: inf.a + f * (sup.a - inf.a),
-                    p: inf.p + f * (sup.p - inf.p),
-                    w: inf.w + f * (sup.w - inf.w)
-                });
-            } else { alert("Rango válido: 119 a 280"); }
+                renderTabla({ r: v, c: inf.c + f*(sup.c-inf.c), a: inf.a + f*(sup.a-inf.a), p: inf.p + f*(sup.p-inf.p), w: inf.w + f*(sup.w-inf.w) });
+            } else alert("Fuera de rango (119-280)");
         }
     }
 
-    function activarVolumen(m) {
-        seleccion = m;
-        document.getElementById('seccion-volumen').style.display = 'block';
-        document.getElementById('mezcla-seleccionada').innerText = m.r.toFixed(0) + " Kg/cm²";
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    function seleccionarMezcla(m) {
+        mezclaSeleccionada = m;
+        document.getElementById('seccion-calculo').style.display = 'block';
+        actualizarCalculos();
     }
 
-    function calcularTotales() {
-        const vol = parseFloat(document.getElementById('inputVolumen').value);
-        if (isNaN(vol) || !seleccion) return;
+    function agregarElemento() {
+        const nombre = document.getElementById('nombreE').value || "Elemento";
+        const l = parseFloat(document.getElementById('largoE').value) || 0;
+        const a = parseFloat(document.getElementById('anchoE').value) || 0;
+        const e = parseFloat(document.getElementById('espesorE').value) || 0;
+        
+        const vol = l * a * e;
+        if (vol <= 0) return;
 
-        document.getElementById('resultado-final').innerHTML = `
-            <div class="totales-card">
-                <strong>Para ${vol} m³ totales:</strong><br><br>
-                🏗️ <b>${(seleccion.c * vol).toFixed(1)}</b> Sacos Cemento<br>
-                ⏳ <b>${(seleccion.a * vol).toFixed(2)}</b> m³ Arena<br>
-                🪨 <b>${(seleccion.p * vol).toFixed(2)}</b> m³ Piedra<br>
-                💧 <b>${(seleccion.w * vol).toFixed(0)}</b> Litros Agua
-            </div>
-        `;
+        volumenTotal += vol;
+        
+        const lista = document.getElementById('lista-elementos');
+        const div = document.createElement('div');
+        div.className = 'elemento-item';
+        div.innerHTML = `<span>${nombre}</span> <span>${vol.toFixed(2)} m³</span>`;
+        lista.appendChild(div);
+
+        actualizarCalculos();
+        // Limpiar campos
+        document.getElementById('largoE').value = ''; document.getElementById('anchoE').value = ''; document.getElementById('espesorE').value = '';
+    }
+
+    function actualizarCalculos() {
+        if (!mezclaSeleccionada) return;
+        document.getElementById('vol-total-text').innerText = volumenTotal.toFixed(2);
+        document.getElementById('tot-c').innerText = (mezclaSeleccionada.c * volumenTotal).toFixed(1);
+        document.getElementById('tot-a').innerText = (mezclaSeleccionada.a * volumenTotal).toFixed(2);
+        document.getElementById('tot-p').innerText = (mezclaSeleccionada.p * volumenTotal).toFixed(2);
+        document.getElementById('tot-w').innerText = (mezclaSeleccionada.w * volumenTotal).toFixed(0);
     }
 
     renderTabla();
